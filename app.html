@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keg math - calculators</title>
+<style>
+  :root { --accent: #9a6a1a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Georgia, 'Times New Roman', serif; background: #f4f6f8; color: #24282c; line-height: 1.55; }
+  main { max-width: 1100px; margin: 0 auto; padding: 40px 20px 64px; }
+  h1 { font-size: 2rem; margin: 0 0 8px; color: var(--accent); }
+  .lede { margin: 0 0 14px; max-width: 640px; }
+  .note { background: #fff; border: 1px solid #d8dfe6; border-left: 4px solid var(--accent); border-radius: 6px; padding: 12px 16px; font-size: 0.9rem; margin: 0 0 28px; max-width: 720px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+  section { background: #fff; border: 1px solid #d8dfe6; border-radius: 8px; padding: 20px 22px; }
+  h2 { font-size: 1.15rem; margin: 0 0 6px; }
+  .hint { font-size: 0.9rem; color: #727e88; margin: 0 0 14px; }
+  label { display: block; font-size: 0.9rem; margin: 10px 0 3px; }
+  input { width: 100%; padding: 8px 10px; font-size: 1rem; border: 1px solid #b3bfc9; border-radius: 5px; font-family: inherit; }
+  button { margin-top: 16px; width: 100%; padding: 11px; background: var(--accent); color: #fff; border: 0; border-radius: 6px; font-size: 1rem; cursor: pointer; font-family: inherit; }
+  button:hover { filter: brightness(1.08); }
+  .out { margin-top: 14px; font-size: 1rem; min-height: 1.4em; }
+  .out.err { color: #a32222; }
+  footer { max-width: 1100px; margin: 0 auto; padding: 0 20px 40px; font-size: 0.85rem; color: #98a2ab; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Keg math</h1>
+  <p class="lede">The keg names the pints, the tank names the kegs, and the fridge names the day. Exact arithmetic, every borrowed number labeled.</p>
+  <div class="note">Illustrative planning arithmetic only. Every figure is a labeled default: 128 oz per gallon, 1.5 half-barrels per pound of CO2 and 45 minutes of fridge per degree are starting points, not promises - your regulator, your fridge and your crowd will amend them. Foam usually means warm lines or too much pressure, not a bad keg. Know your local rules on keg deposits and serving before the party.</div>
+  <div class="grid">
+    <section>
+      <h2>Pour plan</h2>
+      <p class="hint">The keg names the pints.</p>
+      <label for="p-g">Keg size (gal)</label>
+      <input id="p-g" type="number" value="15.5" min="0" step="0.25">
+      <label for="p-o">Pour size (oz)</label>
+      <input id="p-o" type="number" value="16" min="0" step="1">
+      <button id="p-go">Count the servings</button>
+      <div class="out" id="p-out"></div>
+    </section>
+    <section>
+      <h2>Gas plan</h2>
+      <p class="hint">The tank names the kegs.</p>
+      <label for="g-l">CO2 tank (lb)</label>
+      <input id="g-l" type="number" value="5" min="0" step="0.5">
+      <button id="g-go">Push the tank</button>
+      <div class="out" id="g-out"></div>
+    </section>
+    <section>
+      <h2>Chill plan</h2>
+      <p class="hint">The fridge names the day.</p>
+      <label for="c-s">Keg starts at (F)</label>
+      <input id="c-s" type="number" value="70" step="1">
+      <label for="c-t">Serve at (F)</label>
+      <input id="c-t" type="number" value="38" step="1">
+      <button id="c-go">Time the chill</button>
+      <div class="out" id="c-out"></div>
+    </section>
+  </div>
+</main>
+<footer>Built by the app factory. <a href="index.html">About</a> &middot; <a href="https://github.com/iLanis-agent/kegmath">Source</a></footer>
+<script src="engine.js"></script>
+<script>
+function num(id){ return parseFloat(document.getElementById(id).value); }
+function show(id, r, render){
+  var el = document.getElementById(id);
+  if (r.error) { el.textContent = r.error; el.classList.add('err'); }
+  else { el.textContent = render(r); el.classList.remove('err'); }
+}
+document.getElementById('p-go').addEventListener('click', function(){
+  var a=[num('p-g'),num('p-o')];
+  show('p-out', KegMath.pourPlan.apply(null,a), function(r){ return KegMath.renderPour.apply(null,[r].concat(a)); });
+});
+document.getElementById('g-go').addEventListener('click', function(){
+  var a=[num('g-l')];
+  show('g-out', KegMath.gasPlan.apply(null,a), function(r){ return KegMath.renderGas.apply(null,[r].concat(a)); });
+});
+document.getElementById('c-go').addEventListener('click', function(){
+  var a=[num('c-s'),num('c-t')];
+  show('c-out', KegMath.chillPlan.apply(null,a), function(r){ return KegMath.renderChill.apply(null,[r].concat(a)); });
+});
+</script>
+</body>
+</html>
